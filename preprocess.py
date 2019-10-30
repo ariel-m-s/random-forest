@@ -17,7 +17,7 @@ def load_dfs(path, frac=0.8):
 
 def random_sample(df, target, shape):
     """
-    :param df: dataset to choose random samples from
+    :param df: dataset to choose a random sample from
     :type df: `pandas.DataFrame`
     :param shape: dimensions of the sample
     :type shape: `tuple[int]`
