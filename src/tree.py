@@ -30,6 +30,26 @@ def group_entropy(dfs, target_name, parent_count):
                for df in dfs)
 
 
+def candidates(df, target_name):
+    """
+    :param df: the parent dataset to split
+    :type df: `pandas.DataFrame`
+    :param target_name: name of the column to predict
+    :type target_name: `str`
+
+    :returns: the list of possible ways to split the dataset
+    :rtype: `list[tuple[tuple[str, float], dict[bool: pandas.DataFrame]]]
+    """
+    res = []
+    for feat_name in set(df.columns) - {target_name}:
+        feat = df[feat_name]
+        feat_median = feat.median()
+        feat_mask = feat > feat_median
+        res.append(((feat_name, feat_median),
+                    {key: value for key, value in df.groupby(feat_mask)}))
+    return res
+
+
 def most_repeating_value(feat):
     """
     :param feat: column to which to calculate the MRV
@@ -79,7 +99,8 @@ class DecisionTreeModel:
             except KeyError:
                 tree = default_tree
             else:
-                tree = tree.children.get(value, default_tree)
+                decision = value > tree.split_feat_median
+                tree = tree.children.get(decision, default_tree)
         return tree.prediction
 
 
@@ -107,7 +128,8 @@ class DecisionTree:
             self.prediction = most_repeating_value(target)
 
         else:
-            self.split_feat_name, winner = self.split_dataset(df, target_name)
+            split_feat_values, winner = self.split_dataset(df, target_name)
+            self.split_feat_name, self.split_feat_median = split_feat_values
             child_kwargs = {
                 'target_name': target_name,
                 'max_depth': max_depth - 1,
@@ -119,18 +141,18 @@ class DecisionTree:
 
     def split_dataset(self, df, target_name):
         """
-        :param df: parent dataset
+        :param df: parent dataset to split
         :type df: `pandas.DataFrame`
+        :param target_name: name of the column to predict
+        :type target_name: `str`
 
         :returns: the selected way to split the dataset
-        :rtype: `tuple[str, dict[string: pandas.DataFrame]]`
+        :rtype: `tuple[tuple[str, float], dict[bool: pandas.DataFrame]]`
         """
-        candidates = [(feat_name, {key: value
-                                   for key, value in df.groupby(feat_name)})
-                      for feat_name in set(df.columns) - {target_name}]
         parent_count = df.shape[0]
-        return min(candidates, key=lambda candidate: group_entropy(
-            candidate[1].values(), target_name, parent_count))
+        return min(candidates(df, target_name),
+                   key=lambda candidate: group_entropy(
+                       candidate[1].values(), target_name, parent_count))
 
 
 if __name__ == "__main__":
