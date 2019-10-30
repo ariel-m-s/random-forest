@@ -7,7 +7,7 @@ def load_dfs(path, frac=0.8):
     :type path: `str`
 
     :returns: train and test datasets
-    :rtype: `tuple[pandas.DataFrame]`
+    :rtype: `tuple[pandas.DataFrame, pandas.DataFrame]`
     """
     df = pd.read_csv(path).dropna()
     train = df.sample(frac=frac)
@@ -20,8 +20,8 @@ def random_sample(df, target, shape):
     :param df: dataset to choose a random sample from
     :type df: `pandas.DataFrame`
     :param shape: dimensions of the sample
-    :type shape: `tuple[int]`
-    :param target: series of df with the class to predict
+    :type shape: `tuple[int, int]`
+    :param target: column to predict
     :type target: `pandas.Series`
 
     :returns: random subdataset + target dataset
