@@ -67,6 +67,16 @@ class DecisionTreeModel:
 
         self.tree = DecisionTree(df, target_name, max_depth, min_samples)
 
+    def predict(self, data):
+        if 'tree' not in self.__dict__:
+            raise AttributeError('must fit the model before predicting')
+
+        tree = self.tree
+        while not tree.leaf:
+            value = data[tree.split_feat_name]
+            tree = tree.children.get(value, tuple(tree.children.values())[0])
+        return tree.prediction
+
 
 class DecisionTree:
     def __init__(self, df, target_name, max_depth, min_samples):
@@ -88,28 +98,19 @@ class DecisionTree:
 
         if self.leaf:
             self.df = df
-            self.target_name = target_name
-            return
+            target = self.df[self.target_name]
+            self.prediction = most_repeating_value(target)
 
-        self.split_feat_name, winner = self.split_dataset(df, target_name)
-        child_kwargs = {
-            'target_name': target_name,
-            'max_depth': max_depth - 1,
-            'min_samples': min_samples
-        }
-        self.children = {key: DecisionTree(
-            df=value.drop(columns=self.split_feat_name), **child_kwargs)
-                          for key, value in winner.items()}
-
-    @property
-    def prediction(self):
-        if not self.leaf:
-            raise AttributeError('a non-leaf node has no prediction to make')
-        if '_prediction' in self.__dict__:
-            return self._prediction
-        target = self.df[self.target_name]
-        self._prediction = most_repeating_value(target)
-        return self._prediction
+        else:
+            self.split_feat_name, winner = self.split_dataset(df, target_name)
+            child_kwargs = {
+                'target_name': target_name,
+                'max_depth': max_depth - 1,
+                'min_samples': min_samples
+            }
+            self.children = {key: DecisionTree(
+                df=value.drop(columns=self.split_feat_name), **child_kwargs)
+                              for key, value in winner.items()}
 
     def split_dataset(self, df, target_name):
         """
