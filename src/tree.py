@@ -39,7 +39,49 @@ class DecisionTreeModel:
         self.min_samples = min_samples
 
 
+class DecisionTreeNode:
+    def __init__(self, df, target, min_rows, max_depth):
+        """
+        :param df: dataset to process excluding the target
+        :type df: `pandas.DataFrame`
+        :param target_name: column to predict
+        :type target: `pandas.Series`
+        :param max_depth: maximum depth that this subtree can have
+        :type max_depth: `int`
+        :param min_samples: minimum number of samples a node can have to split
+        :type min_samples: `int`
 
+        :returns: does not return
+        :rtype: `None`
+        """
+        self.target = target
+        self.size = df.shape[0]
+        self.select_children(df)
+
+    def group_entropy(self, candidate):
+        """
+        :param candidate: one possible way to split the dataset
+        :type candidate: `tuple[str, dict[string: pandas.DataFrame]]`
+
+        :returns: the weighted average entropy of the children
+        :rtype: `float`
+        """
+        _, group = candidate
+        return np.sum((df.shape[0] / self.size) * entropy(df[self.target])
+                      for df in group.values())
+
+    def select_children(self, df):
+        """
+        :param df: parent dataset excluding the target
+        :type df: `pandas.DataFrame`
+
+        :returns: the selected way to split the dataset
+        :rtype: `tuple[str, dict[string: pandas.DataFrame]]`
+        """
+        candidates = [(feat_name, {key: value
+                                   for key, value in df.groupby(feat_name)})
+                      for feat_name in df.columns]
+        return min(candidates, key=self.group_entropy)
 
 
 if __name__ == "__main__":
