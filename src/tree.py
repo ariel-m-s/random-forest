@@ -32,7 +32,7 @@ def group_entropy(dfs, target_name, parent_count):
 
 def candidates(df, target_name):
     """
-    :param df: the parent dataset to split
+    :param df: parent dataset to split
     :type df: `pandas.DataFrame`
     :param target_name: name of the column to predict
     :type target_name: `str`
@@ -88,6 +88,13 @@ class DecisionTreeModel:
         self.tree = DecisionTree(df, target_name, max_depth, min_samples)
 
     def predict(self, data):
+        """
+        :param data: information for predicting
+        :param type: `dict[str: float]`
+
+        :returns: a prediction
+        :rtype: `obj`
+        """
         if 'tree' not in self.__dict__:
             raise AttributeError('must fit the model before predicting')
 
