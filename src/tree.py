@@ -42,16 +42,16 @@ class DecisionTreeModel:
         :returns: does not return
         :rtype: `None`
         """
+        if df.shape[0] == 0:
+            raise ValueError('cannot construct tree with no data')
         if max_depth < 0:
             raise ValueError('cannot construct tree with negative depth')
 
-        self.df = df
-        self.target_name = target_name
-        self.max_depth = max_depth
-        self.min_samples_safe = max(min_samples, 2)
+        self.tree = DecisionTree(
+            df, target_name, max_depth, max(min_samples, 2))
 
 
-class DecisionTreeNode:
+class DecisionTree:
     def __init__(self, df, target_name, max_depth, min_samples):
         """
         :param df: dataset to process
@@ -80,7 +80,7 @@ class DecisionTreeNode:
             'max_depth': max_depth - 1,
             'min_samples': min_samples
         }
-        self.children = {key: DecisionTreeNode(
+        self.children = {key: DecisionTree(
             df=value.drop(columns=self.split_feat_name), **child_kwargs)
                           for key, value in winner}
 
