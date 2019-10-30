@@ -32,9 +32,3 @@ def random_sample(df, target, shape):
     df[target.name] = target
     df = df.sample(n=n_rows)
     return df
-
-
-if __name__ == "__main__":
-    train, test = load_dfs("data.csv")
-    print(random_sample(train.drop("Class", axis=1), train["Class"], (1, 1)))
-    print(train["Class"])
