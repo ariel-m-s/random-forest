@@ -40,7 +40,7 @@ def most_repeating_value(feat):
     """
     _, counts = np.unique(feat, return_counts=True)
     index = np.argmax(counts)
-    return feat[index]
+    return feat.values[index]
 
 
 class DecisionTreeModel:
@@ -73,8 +73,13 @@ class DecisionTreeModel:
 
         tree = self.tree
         while not tree.leaf:
-            value = data[tree.split_feat_name]
-            tree = tree.children.get(value, tuple(tree.children.values())[0])
+            default_tree = tuple(tree.children.values())[0]
+            try:
+                value = data[tree.split_feat_name]
+            except KeyError:
+                tree = default_tree
+            else:
+                tree = tree.children.get(value, default_tree)
         return tree.prediction
 
 
@@ -93,12 +98,12 @@ class DecisionTree:
         :returns: does not return
         :rtype: `None`
         """
-        self.leaf = (max_depth == 0 and df.shape[0] < min_samples) \
+        self.leaf = max_depth == 0 \
+            or df.shape[0] < min_samples \
             or df[target_name].nunique == 1
 
         if self.leaf:
-            self.df = df
-            target = self.df[self.target_name]
+            target = df[target_name]
             self.prediction = most_repeating_value(target)
 
         else:
@@ -109,7 +114,7 @@ class DecisionTree:
                 'min_samples': min_samples
             }
             self.children = {key: DecisionTree(
-                df=value.drop(columns=self.split_feat_name), **child_kwargs)
+                df=value.drop(columns=[self.split_feat_name]), **child_kwargs)
                               for key, value in winner.items()}
 
     def split_dataset(self, df, target_name):
@@ -132,4 +137,4 @@ if __name__ == "__main__":
     from preprocess import load_dfs
     train, test = load_dfs('mini.csv')
     model = DecisionTreeModel()
-    model.fit(train, 'Class', 5, 10)
+    model.fit(train, 'Class', 1, 10)
