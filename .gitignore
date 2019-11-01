@@ -2,7 +2,7 @@
 enunciado.pdf
 
 # Data
-data.csv
+*.csv
 
 # macOS
 *.DS_Store
