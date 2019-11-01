@@ -1,5 +1,5 @@
-from preprocess import random_sample
-from tree import DecisionTreeModel
+from randomforest.preprocess import random_sample
+from randomforest.decisiontree import DecisionTreeModel
 
 try:
     from progress.bar import Bar
@@ -14,7 +14,7 @@ except (ModuleNotFoundError, ImportError):
 
 class RandomForestModel:
     def fit(self, df, target_name, n_estimators=5, frac_shape=(0.2, 0.3),
-            max_depth=4, min_samples=1000):
+            max_depth=4, min_samples_split=1000):
         """
         :param df: dataset to fit
         :type df: `pandas.DataFrame`
@@ -22,8 +22,8 @@ class RandomForestModel:
         :type target_name: `str`
         :param max_depth: maximum depth of the tree can have
         :type max_depth: `int`
-        :param min_samples: minimum number of samples a node can have to split
-        :type min_samples: `int`
+        :param min_samples_split: minimum number of samples a node can have to split
+        :type min_samples_split: `int`
 
         :returns: does not return
         :rtype: `None`
@@ -53,7 +53,7 @@ class RandomForestModel:
         for _ in Bar('Training...').iter(range(n_estimators)):
             sample_df = random_sample(df_exc, target, n_shape)
             tree = DecisionTreeModel()
-            tree.fit(sample_df, target_name, max_depth, min_samples)
+            tree.fit(sample_df, target_name, max_depth, min_samples_split)
             self.forest.append(tree)
 
     def predict(self, data):
@@ -86,11 +86,3 @@ class RandomForestModel:
             assertion = self.predict(data) == data[self.target_name]
             assertions.append(assertion)
         return f'{sum(assertions) / len(assertions) * 100}%'
-
-
-if __name__ == "__main__":
-    from preprocess import load_dfs
-    train, test = load_dfs('data.csv')
-    model = RandomForestModel()
-    model.fit(train, 'Class')
-    print(model.assert_predictions(test))
