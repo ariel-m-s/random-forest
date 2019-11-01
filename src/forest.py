@@ -34,22 +34,57 @@ class RandomForestModel:
             raise ValueError('the target column must be present in data')
         if df.shape[0] == 0:
             raise ValueError('the data must have at least one row')
+        if df.shape[1] < 2:
+            raise ValueError('the data must have at least two columns')
         if max_depth < 0:
             raise ValueError('the maximum depth must be non negative')
 
+        n_shape = (
+            max(frac_shape[0] / df.shape[0], 1),
+            max(frac_shape[1] / df.shape[1], 2),
+        )
         target = df[target_name]
         df_exc = df.drop(columns=[target_name])
 
         self.forest = []
+        self.target_name = target_name
 
         for _ in Bar('Training...').iter(range(n_estimators)):
-            sample_df = random_sample(df_exc, target, frac_shape)
+            sample_df = random_sample(df_exc, target, n_shape)
             tree = DecisionTreeModel()
             tree.fit(sample_df, target_name, max_depth, min_samples)
             self.forest.append(tree)
 
     def predict(self, data):
-        pass
+        """
+        :param data: information for predicting
+        :param type: `pandas.Series`
+
+        :returns: a random forest prediction
+        :rtype: `obj`
+        """
+        if 'forest' not in self.__dict__:
+            raise AttributeError('must fit the model before predicting')
+
+        predictions = []
+        for tree in self.forest:
+            prediction = tree.predict(data)
+            predictions.append(prediction)
+        return max(set(predictions), key=predictions.count)
+
+    def assert_predictions(self, df):
+        """
+        :param df: dataset to test
+        :type df: `pandas.DataFrame`
+
+        :returns: correct percentage
+        :rtype: `str`
+        """
+        assertions = []
+        for _, data in df.iterrows():
+            assertion = self.predict(data) == data[self.target_name]
+            assertions.append(assertion)
+        return f'{sum(assertions) / len(assertions) * 100}%'
 
 
 if __name__ == "__main__":
@@ -57,4 +92,4 @@ if __name__ == "__main__":
     train, test = load_dfs('data.csv')
     model = RandomForestModel()
     model.fit(train, 'Class', max_depth=2, min_samples=10000, n_estimators=10)
-
+    print(model.assert_predictions(test))

@@ -82,15 +82,12 @@ class DecisionTreeModel:
 
     def predict(self, data):
         """
-        :param data: information for predicting m
+        :param data: information for predicting
         :param type: `pandas.Series`
 
-        :returns: a prediction
+        :returns: a decision tree prediction
         :rtype: `obj`
         """
-        if 'tree' not in self.__dict__:
-            raise AttributeError('must fit the model before predicting')
-
         tree = self.tree
         while not tree.leaf:
             default_tree = tuple(tree.children.values())[0]
