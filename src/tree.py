@@ -78,13 +78,6 @@ class DecisionTreeModel:
         :returns: does not return
         :rtype: `None`
         """
-        if target_name not in df.columns:
-            raise ValueError('the target column must be present in data')
-        if df.shape[0] == 0:
-            raise ValueError('the data must have at least one row')
-        if max_depth < 0:
-            raise ValueError('the maximum depth must be non negative')
-
         print('Training model...')
         self.tree = DecisionTree(df, target_name, max_depth, min_samples)
         print('Model trained!', end='\n\n')
