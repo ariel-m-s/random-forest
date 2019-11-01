@@ -81,7 +81,7 @@ class DecisionTreeModel:
         if target_name not in df.columns:
             raise ValueError('the target column must be present in data')
         if df.shape[0] == 0:
-            raise ValueError('the data must have at reast one row')
+            raise ValueError('the data must have at least one row')
         if max_depth < 0:
             raise ValueError('the maximum depth must be non negative')
 
