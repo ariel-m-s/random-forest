@@ -17,7 +17,7 @@ def entropy(feat):
 def group_entropy(dfs, target_name, parent_count):
     """
     :param dfs: one possible way to split the dataset
-    :type dfs: `dict_values[pandas.DataFrame]`
+    :type dfs: `dict_values`
     :param target_name: name of the column to predict
     :type target_name: `str`
     :param parent_count: the number of rows in the parent dataset
@@ -38,7 +38,7 @@ def candidates(df, target_name):
     :type target_name: `str`
 
     :returns: the list of possible ways to split the dataset
-    :rtype: `list[tuple[tuple[str, float], dict[bool: pandas.DataFrame]]]
+    :rtype: `list`
     """
     res = []
     for feat_name in set(df.columns) - {target_name}:
@@ -85,12 +85,14 @@ class DecisionTreeModel:
         if max_depth < 0:
             raise ValueError('the maximum depth must be non negative')
 
+        print('Training model...')
         self.tree = DecisionTree(df, target_name, max_depth, min_samples)
+        print('Model trained!')
 
     def predict(self, data):
         """
         :param data: information for predicting m
-        :param type: `dict[str: float]`
+        :param type: `pandas.Series`
 
         :returns: a prediction
         :rtype: `obj`
@@ -167,7 +169,7 @@ class DecisionTree:
         :type target_name: `str`
 
         :returns: the selected way to split the dataset
-        :rtype: `tuple[tuple[str, float], dict[bool: pandas.DataFrame]]`
+        :rtype: `tuple`
         """
         parent_count = df.shape[0]
         return min(candidates(df, target_name),
@@ -201,5 +203,6 @@ if __name__ == "__main__":
     from preprocess import load_dfs
     train, test = load_dfs('mini.csv')
     model = DecisionTreeModel()
-    model.fit(train, 'Class')
-    print(model)
+    model.fit(train, 'Class', 5, 5)
+    for _, data in test.iterrows():
+        print(model.predict(data), data['Class'])
