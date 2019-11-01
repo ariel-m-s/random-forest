@@ -23,7 +23,7 @@ def group_entropy(dfs, target_name, parent_count):
     :param parent_count: the number of rows in the parent dataset
     :type parent_count: `int`
 
-    :returns: the weighted average entropy of the children
+    :returns: weighted average entropy of the children
     :rtype: `float`
     """
     return sum((df.shape[0] / parent_count) * entropy(df[target_name])
@@ -64,7 +64,7 @@ def most_repeating_value(feat):
 
 
 class DecisionTreeModel:
-    def fit(self, df, target_name, max_depth, min_samples):
+    def fit(self, df, target_name, max_depth=float('inf'), min_samples=0):
         """
         :param df: dataset to fit
         :type df: `pandas.DataFrame`
@@ -89,7 +89,7 @@ class DecisionTreeModel:
 
     def predict(self, data):
         """
-        :param data: information for predicting
+        :param data: information for predicting m
         :param type: `dict[str: float]`
 
         :returns: a prediction
@@ -110,9 +110,16 @@ class DecisionTreeModel:
                 tree = tree.children.get(decision, default_tree)
         return tree.prediction
 
+    def __repr__(self):
+        """
+        :returns: a visual representation of the decision tree
+        :rtype: `str`
+        """
+        return str(self.tree)
+
 
 class DecisionTree:
-    def __init__(self, df, target_name, max_depth, min_samples):
+    def __init__(self, df, target_name, max_depth, min_samples, depth=0):
         """
         :param df: dataset to process
         :type df: `pandas.DataFrame`
@@ -122,10 +129,14 @@ class DecisionTree:
         :type max_depth: `int`
         :param min_samples: minimum number of samples a node can have to split
         :type min_samples: `int`
+        :param depth: depth of this subtree relative to the root node
+        :type depth: `int`
 
         :returns: does not return
         :rtype: `None`
         """
+        self.depth = depth
+
         self.leaf = max_depth == 0 \
             or df.shape[0] < min_samples \
             or df[target_name].nunique == 1
@@ -140,11 +151,12 @@ class DecisionTree:
             child_kwargs = {
                 'target_name': target_name,
                 'max_depth': max_depth - 1,
-                'min_samples': min_samples
+                'min_samples': min_samples,
+                'depth': self.depth + 1,
             }
             self.children = {key: DecisionTree(
                 df=value.drop(columns=[self.split_feat_name]), **child_kwargs)
-                              for key, value in winner.items()}
+                for key, value in winner.items()}
 
     def split_dataset(self, df, target_name):
         """
@@ -161,9 +173,32 @@ class DecisionTree:
                    key=lambda candidate: group_entropy(
                        candidate[1].values(), target_name, parent_count))
 
+    def __repr__(self):
+        """
+        :returns: a recursive visual representation of the decision tree
+        :rtype: `str`
+        """
+        padding = '   '
+
+        if self.leaf:
+            return f'{padding * self.depth}prediction: "{self.prediction}"!\n'
+
+        return (f'{padding * self.depth}"{self.split_feat_name}"'
+                f' <= {self.split_feat_median}:\n'
+
+                f'\n{padding * (self.depth + 1)}'
+                f'{self.children.get(False, "empty tree")}\n'
+
+                f'{padding * self.depth}"{self.split_feat_name}"'
+                f' > {self.split_feat_median}:\n'
+
+                f'\n{padding * (self.depth + 1)}'
+                f'{self.children.get(True, "empty tree")}\n')
+
 
 if __name__ == "__main__":
     from preprocess import load_dfs
     train, test = load_dfs('mini.csv')
     model = DecisionTreeModel()
-    model.fit(train, 'Class', 1, 10)
+    model.fit(train, 'Class')
+    print(model)
