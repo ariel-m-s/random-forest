@@ -1,6 +1,16 @@
 from preprocess import random_sample
 from tree import DecisionTreeModel
 
+try:
+    from progress.bar import Bar
+except (ModuleNotFoundError, ImportError):
+    class Bar:
+        def __init__(self, msg):
+            print(msg)
+
+        def iter(self, iterator):
+            return iterator
+
 
 class RandomForestModel:
     def fit(self, df, target_name, n_estimators=100, frac_shape=(0.2, 0.4),
@@ -30,10 +40,21 @@ class RandomForestModel:
         target = df[target_name]
         df_exc = df.drop(columns=[target_name])
 
-        forest = []
+        self.forest = []
 
-        for _ in range(n_estimators):
+        for _ in Bar('Training...').iter(range(n_estimators)):
             sample_df = random_sample(df_exc, target, frac_shape)
             tree = DecisionTreeModel()
             tree.fit(sample_df, target_name, max_depth, min_samples)
-            forest.append(tree)
+            self.forest.append(tree)
+
+    def predict(self, data):
+        pass
+
+
+if __name__ == "__main__":
+    from preprocess import load_dfs
+    train, test = load_dfs('data.csv')
+    model = RandomForestModel()
+    model.fit(train, 'Class', max_depth=2, min_samples=10000, n_estimators=10)
+

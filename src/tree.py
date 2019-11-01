@@ -78,9 +78,7 @@ class DecisionTreeModel:
         :returns: does not return
         :rtype: `None`
         """
-        print('Training model...')
         self.tree = DecisionTree(df, target_name, max_depth, min_samples)
-        print('Model trained!', end='\n\n')
 
     def predict(self, data):
         """
