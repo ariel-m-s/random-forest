@@ -139,6 +139,7 @@ class DecisionTree:
 
         self.leaf = max_depth == 0 \
             or df.shape[0] < min_samples \
+            or df.shape[1] <= 1 \
             or df[target_name].nunique == 1
 
         if self.leaf:
