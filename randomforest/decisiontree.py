@@ -185,12 +185,3 @@ class DecisionTree:
 
                 f'\n{padding * (self.depth + 1)}'
                 f'{self.children.get(True, "empty tree")}\n')
-
-
-if __name__ == "__main__":
-    from preprocess import load_dfs
-    train, test = load_dfs('mini.csv')
-    model = DecisionTreeModel()
-    model.fit(train, 'Class', 5, 5)
-    for _, data in test.iterrows():
-        print(model.predict(data), data['Class'])
