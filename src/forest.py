@@ -13,8 +13,8 @@ except (ModuleNotFoundError, ImportError):
 
 
 class RandomForestModel:
-    def fit(self, df, target_name, n_estimators=100, frac_shape=(0.2, 0.4),
-            max_depth=float('inf'), min_samples=0):
+    def fit(self, df, target_name, n_estimators=5, frac_shape=(0.2, 0.3),
+            max_depth=4, min_samples=1000):
         """
         :param df: dataset to fit
         :type df: `pandas.DataFrame`
@@ -39,12 +39,13 @@ class RandomForestModel:
         if max_depth < 0:
             raise ValueError('the maximum depth must be non negative')
 
-        n_shape = (
-            max(frac_shape[0] / df.shape[0], 1),
-            max(frac_shape[1] / df.shape[1], 2),
-        )
         target = df[target_name]
         df_exc = df.drop(columns=[target_name])
+
+        n_shape = (
+            max(int(frac_shape[0] * df_exc.shape[0]), 1),
+            max(int(frac_shape[1] * df_exc.shape[1]), 1),
+        )
 
         self.forest = []
         self.target_name = target_name
@@ -91,5 +92,5 @@ if __name__ == "__main__":
     from preprocess import load_dfs
     train, test = load_dfs('data.csv')
     model = RandomForestModel()
-    model.fit(train, 'Class', max_depth=2, min_samples=10000, n_estimators=10)
+    model.fit(train, 'Class')
     print(model.assert_predictions(test))
