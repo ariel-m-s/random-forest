@@ -78,28 +78,16 @@ class DecisionTreeModel:
         :returns: does not return
         :rtype: `None`
         """
-        if target_name not in df.columns:
-            raise ValueError('the target column must be present in data')
-        if df.shape[0] == 0:
-            raise ValueError('the data must have at reast one row')
-        if max_depth < 0:
-            raise ValueError('the maximum depth must be non negative')
-
-        print('Training model...')
         self.tree = DecisionTree(df, target_name, max_depth, min_samples)
-        print('Model trained!', end='\n\n')
 
     def predict(self, data):
         """
-        :param data: information for predicting m
+        :param data: information for predicting
         :param type: `pandas.Series`
 
-        :returns: a prediction
+        :returns: a decision tree prediction
         :rtype: `obj`
         """
-        if 'tree' not in self.__dict__:
-            raise AttributeError('must fit the model before predicting')
-
         tree = self.tree
         while not tree.leaf:
             default_tree = tuple(tree.children.values())[0]
