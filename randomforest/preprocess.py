@@ -10,6 +10,7 @@ def load_dfs(path, frac=0.8):
     :rtype: `tuple`
     """
     df = pd.read_csv(path).dropna()
+    df = df.drop(columns=['ID'])
     train = df.sample(frac=frac)
     test = df.drop(train.index)
     return train, test

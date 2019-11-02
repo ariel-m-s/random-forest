@@ -10,6 +10,7 @@ flake8 = "~=3.7"
 numpy = "~=1.17"
 pandas = "~=0.25"
 progress = "~=1.5"
+plotly = "~=4.2"
 
 [requires]
 python_version = "3.7"
