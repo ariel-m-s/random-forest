@@ -1,4 +1,5 @@
 import numpy as np
+import plotly.graph_objects as go
 
 
 def entropy(feat):
@@ -100,7 +101,10 @@ class DecisionTreeModel:
                 tree = tree.children.get(decision, default_tree)
         return tree.prediction
 
-    def __repr__(self):
+    def generate_treemap(self):
+        return self.tree.generate_treemap()
+
+    def __str__(self):
         """
         :returns: a visual representation of the decision tree
         :rtype: `str`
@@ -109,6 +113,8 @@ class DecisionTreeModel:
 
 
 class DecisionTree:
+    counter = 0
+
     def __init__(self, df, target_name, max_depth, min_samples, depth=0):
         """
         :param df: dataset to process
@@ -125,6 +131,9 @@ class DecisionTree:
         :returns: does not return
         :rtype: `None`
         """
+        DecisionTree.counter += 1
+        self.id = DecisionTree.counter
+
         self.depth = depth
 
         self.leaf = max_depth == 0 \
@@ -143,7 +152,7 @@ class DecisionTree:
                 'target_name': target_name,
                 'max_depth': max_depth - 1,
                 'min_samples': min_samples,
-                'depth': self.depth + 1,
+                'depth': depth + 1,
             }
             self.children = {key: DecisionTree(
                 df=value.drop(columns=[self.split_feat_name]), **child_kwargs)
@@ -164,7 +173,26 @@ class DecisionTree:
                    key=lambda candidate: group_entropy(
                        candidate[1].values(), target_name, parent_count))
 
-    def __repr__(self):
+    def label(self):
+        return (f'{self.split_feat_name} {"{}"} {self.split_feat_median}'
+                f' (node id: {self.id})')
+
+    def generate_treemap(self, parent_label='', labels=[], parents=[]):
+        if self.leaf:
+            parents.append(parent_label)
+            labels.append((f'{self.prediction} (node id: {self.id})'))
+
+        else:
+            for key, child in self.children.items():
+                parents.append(parent_label)
+                child_label = self.label().format('>' if key else '<=')
+                labels.append(child_label)
+                child.generate_treemap(child_label, labels, parents)
+
+        if parent_label == '':
+            return go.Figure(go.Treemap(labels=labels, parents=parents))
+
+    def __str__(self):
         """
         :returns: a recursive visual representation of the decision tree
         :rtype: `str`
@@ -172,16 +200,15 @@ class DecisionTree:
         padding = '   '
 
         if self.leaf:
-            return f'{padding * self.depth}prediction: "{self.prediction}"!\n'
+            return (f'{padding * self.depth}L{self.depth} - '
+                    f'prediction: "{self.prediction}"!\n')
 
-        return (f'{padding * self.depth}"{self.split_feat_name}"'
-                f' <= {self.split_feat_median}:\n'
+        return (f'{padding * self.depth}L{self.depth} - '
+                f'"{self.split_feat_name}" <= {self.split_feat_median}:\n'
 
-                f'\n{padding * (self.depth + 1)}'
-                f'{self.children.get(False, "empty tree")}\n'
+                f'\n{self.children.get(False, "empty tree")}\n'
 
-                f'{padding * self.depth}"{self.split_feat_name}"'
-                f' > {self.split_feat_median}:\n'
+                f'{padding * self.depth}L{self.depth} - '
+                f'"{self.split_feat_name}" > {self.split_feat_median}:\n'
 
-                f'\n{padding * (self.depth + 1)}'
-                f'{self.children.get(True, "empty tree")}\n')
+                f'\n{self.children.get(True, "empty tree")}\n')

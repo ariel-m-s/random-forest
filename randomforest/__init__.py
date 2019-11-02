@@ -13,21 +13,28 @@ except (ModuleNotFoundError, ImportError):
 
 
 class RandomForestModel:
-    def fit(self, df, target_name, n_estimators=5, frac_shape=(0.2, 0.3),
+    def fit(self, data, target, n_estimators=5, frac_shape=(0.2, 0.3),
             max_depth=4, min_samples_split=1000):
         """
-        :param df: dataset to fit
-        :type df: `pandas.DataFrame`
-        :param target_name: name of the column to predict
-        :type target_name: `str`
+        :param data: dataset to fit
+        :type data: `pandas.DataFrame`
+        -> internal name is 'df'
+        :param target: name of the column to predict
+        :type target: `str`
+        -> internal name is 'target_name'
         :param max_depth: maximum depth of the tree can have
         :type max_depth: `int`
-        :param min_samples_split: minimum number of samples a node can have to split
+        :param min_samples_split: minimum number of samples of a non-leaf node
         :type min_samples_split: `int`
+        -> internal name is 'min_samples'
 
         :returns: does not return
         :rtype: `None`
         """
+        df = data
+        target_name = target
+        min_samples = min_samples_split
+
         if n_estimators < 1:
             raise ValueError('there must be at least one estimator')
         if target_name not in df.columns:
@@ -53,7 +60,7 @@ class RandomForestModel:
         for _ in Bar('Training...').iter(range(n_estimators)):
             sample_df = random_sample(df_exc, target, n_shape)
             tree = DecisionTreeModel()
-            tree.fit(sample_df, target_name, max_depth, min_samples_split)
+            tree.fit(sample_df, target_name, max_depth, min_samples)
             self.forest.append(tree)
 
     def predict(self, data):
