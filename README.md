@@ -22,7 +22,7 @@ This file provides utility functions for loading datasets and creating random sa
 
 4. `main.ipynb`
 
-Jupyter Notebook demonstrating the usage of the Random Forest model.
+Jupyter Notebook demonstrating the usage of the Random Forest model. It serves as a visual guide and provides insights into the training process.
 
 ## Example usage
 
