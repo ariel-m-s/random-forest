@@ -36,7 +36,7 @@ accuracy = model.assert_predictions(test_data)
 print(f"Model Accuracy: {accuracy}")
 ```
 
-## Model Parameters
+## Model parameters
 
 The `fit` method in the `RandomForestModel` class accepts several parameters allowing model customization. These include:
 
@@ -48,13 +48,3 @@ The `fit` method in the `RandomForestModel` class accepts several parameters all
 ## Visualization
 
 The `generate_treemap` method in the `DecisionTreeModel` class creates an interactive treemap visualization of the decision tree. This visualization can help understand the structure of individual decision trees within the Random Forest.
-
-## Dependencies
-
-This implementation relies on the following Python libraries:
-
-- `pandas`
-- `numpy`
-- `plotly`
-
-Ensure these libraries are installed before using the Random Forest model.
