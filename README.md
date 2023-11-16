@@ -45,6 +45,8 @@ The `fit` method in the `RandomForestModel` class accepts several parameters all
 - `max_depth`: Maximum depth of each decision tree.
 - `min_samples_split`: The minimum number of samples a non-leaf node can have to split.
 
+Adjusting the parameters of the Random Forest model can have a significant impact on its performance and behavior. It's common practice to perform a hyperparameter search using techniques like grid search or random search to find the optimal combination of parameters that maximizes the model's accuracy on a validation set.
+
 ## Visualization
 
 The `generate_treemap` method in the `DecisionTreeModel` class creates an interactive treemap visualization of the decision tree. This visualization can help understand the structure of individual decision trees within the Random Forest.
