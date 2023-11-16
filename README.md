@@ -8,17 +8,21 @@ This repository contains a Python implementation of a Random Forest model. The R
 
 The repository includes the following files:
 
-1. `__init__.py`
+1. `randomforest/__init__.py`
 
 This file initializes the Random Forest model, imports necessary components, and defines the main `RandomForestModel` class. The class includes methods for model training, prediction, and asserting predictions on a dataset.
 
-2. `decisiontree.py`
+2. `randomforest/decisiontree.py`
 
 This file contains the implementation of the Decision Tree, a fundamental component of the Random Forest model. The Decision Tree recursively partitions the dataset based on feature values, creating a tree structure that facilitates predictive modeling.
 
-3. `preprocess.py`
+3. `randomforest/preprocess.py`
 
 This file provides utility functions for loading datasets and creating random samples for training the Random Forest model. The `load_dfs` function loads a dataset from a CSV file, and `random_sample` generates a random subdataset for training.
+
+4. `main.ipynb`
+
+Jupyter Notebook demonstrating the usage of the Random Forest model.
 
 ## Example usage
 
@@ -44,3 +48,13 @@ The `fit` method in the `RandomForestModel` class accepts several parameters all
 ## Visualization
 
 The `generate_treemap` method in the `DecisionTreeModel` class creates an interactive treemap visualization of the decision tree. This visualization can help understand the structure of individual decision trees within the Random Forest.
+
+## Dependencies
+
+This implementation relies on the following Python libraries:
+
+- `pandas`
+- `numpy`
+- `plotly`
+
+Ensure these libraries are installed before using the Random Forest model.
