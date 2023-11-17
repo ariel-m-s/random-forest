@@ -1,4 +1,4 @@
-# Random Forest implementation in Python
+# Binary Random Forest implementation in Python
 
 ## Overview
 
